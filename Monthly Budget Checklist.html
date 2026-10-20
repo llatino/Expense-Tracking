@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monthly Budget Checklist</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1b1f24;--mut:#6b7280;--bd:#e5e7eb;--ok:#15803d;--bad:#dc2626;--acc:#2563eb;--okbg:#e8f6ec;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1216;--card:#171c22;--tx:#e8ebef;--mut:#9aa4b0;--bd:#2a323b;--ok:#4ade80;--bad:#f87171;--acc:#60a5fa;--okbg:#14301f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1216;--card:#171c22;--tx:#e8ebef;--mut:#9aa4b0;--bd:#2a323b;--ok:#4ade80;--bad:#f87171;--acc:#60a5fa;--okbg:#14301f;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:14px 14px 90px}
+button,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;min-height:44px}
+button{cursor:pointer}
+.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.mnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.mnav b{font-size:18px}
+.mnav button{width:46px;font-size:20px;padding:0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.sal{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sal label{font-size:13px;color:var(--mut);display:flex;flex-direction:column;gap:4px}
+.sal input{width:100%;text-align:right;font-size:20px;font-weight:650}
+.tot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--bd);color:var(--mut)}.tot b{color:var(--tx);font-size:20px}
+input[type=checkbox]{padding:0;border:0;background:none;min-height:0}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;text-align:center}
+.stats small{display:block;color:var(--mut);font-size:12px}
+.stats div b{font-size:18px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.prog{height:8px;background:var(--bd);border-radius:6px;margin-top:12px;overflow:hidden}.prog i{display:block;height:100%;background:var(--acc);border-radius:6px}
+.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hd h2{font-size:15px;margin:0}
+.hd button{min-height:36px;padding:4px 12px;font-size:14px}
+.it{display:flex;align-items:center;gap:12px;min-height:54px;padding:6px 2px;border-top:1px solid var(--bd);cursor:pointer}
+.it:first-of-type{border-top:0}
+.it input[type=checkbox]{width:26px;height:26px;min-height:0;flex:none;accent-color:var(--ok)}
+.it .n{flex:1;min-width:0;overflow-wrap:anywhere}
+.it .n small{display:block;color:var(--mut);font-size:12px}
+.it .a{font-weight:600;white-space:nowrap}
+.it.done .n,.it.done .a{color:var(--mut);text-decoration:line-through}
+.ed{display:flex;gap:6px;align-items:center;padding:6px 0;border-top:1px solid var(--bd)}
+.ed input[data-f=name]{flex:1;min-width:0}.ed input[data-f=amt]{width:96px;text-align:right}
+.ed button{width:48px;padding:0;flex:none}
+.add{display:grid;grid-template-columns:1fr 100px;gap:8px;margin-top:10px}
+.add label{grid-column:1/3;font-size:14px;color:var(--mut);display:flex;gap:8px;align-items:center}
+.add label input{min-height:0;width:20px;height:20px}
+.add button{grid-column:1/3}
+.empty{color:var(--mut);text-align:center;padding:16px 0}
+.bar{display:grid;grid-template-columns:96px 1fr 70px;gap:8px;align-items:center;margin:7px 0;font-size:13px}
+.bar .t{background:var(--bd);border-radius:5px;height:10px;overflow:hidden}.bar .t i{display:block;height:100%;background:var(--acc)}
+.bar span:last-child{text-align:right;color:var(--mut)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:9px 6px;text-align:right;border-top:1px solid var(--bd);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{color:var(--mut);font-weight:500;border-top:0;font-size:12px}
+tbody tr{cursor:pointer}tr.sel td{font-weight:700}
+.ins{margin:0;padding-left:18px;color:var(--mut)}.ins li{margin:5px 0}.ins b{color:var(--tx)}
+svg text{fill:var(--mut);font-size:11px}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd);z-index:5}
+.nav button{flex:1;border:0;background:none;font-weight:600;color:var(--mut)}
+.nav button.on{color:var(--acc);background:var(--bg)}
+.note{font-size:12px;color:var(--mut);text-align:center}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mnav"><button id="prev" aria-label="Previous month">‹</button><b id="ml"></b><button id="next" aria-label="Next month">›</button></div>
+
+  <section id="pgList">
+    <div class="card">
+      <div class="sal"><label>Base salary<input id="sal" type="number" inputmode="decimal" placeholder="0"></label><label>OT this month<input id="ot" type="number" inputmode="decimal" placeholder="0"></label></div>
+      <div class="tot"><span>Salary this month</span><b id="tot">0</b></div>
+      <div class="stats">
+        <div><small>Paid</small><b id="sPaid">0</b></div>
+        <div><small>Remain</small><b id="sRem">0</b></div>
+        <div><small>If all paid</small><b id="sAll">0</b></div>
+      </div>
+      <div class="prog"><i id="prog" style="width:0"></i></div>
+    </div>
+    <div class="card">
+      <div class="hd"><h2 id="cnt">Checklist</h2><button id="editBtn">Edit</button></div>
+      <div id="list"></div>
+      <div class="add hide" id="addBox">
+        <input id="aName" type="text" placeholder="New item name" maxlength="40">
+        <input id="aAmt" type="number" inputmode="decimal" placeholder="Amount">
+        <label><input type="checkbox" id="aOnce"> This month only</label>
+        <button class="pri" id="aBtn">Add item</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="pgHist" class="hide">
+    <div class="card"><div class="hd"><h2>Paid vs salary, last 12 months</h2></div><div id="chart"></div></div>
+    <div class="card"><div class="hd"><h2>This month by item</h2></div><div id="bars"></div></div>
+    <div class="card"><div class="hd"><h2>Insights</h2></div><ul class="ins" id="ins"></ul></div>
+    <div class="card"><div class="hd"><h2>Monthly history</h2></div><div class="scroll"><table><thead><tr><th>Month</th><th>Salary</th><th>Paid</th><th>Remain</th><th>Saved</th></tr></thead><tbody id="hist"></tbody></table></div></div>
+    <div class="card"><div class="hd"><h2>Item history</h2></div><div class="scroll"><table><thead><tr><th>Item</th><th>Times paid</th><th>Total</th></tr></thead><tbody id="itemHist"></tbody></table></div></div>
+  </section>
+  <div class="note" id="status"></div>
+</div>
+<nav class="nav"><button data-t="list" class="on">✓ Checklist</button><button data-t="hist">📊 History</button></nav>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>(+n||0).toLocaleString(undefined,{maximumFractionDigits:2});
+const pad=n=>String(n).padStart(2,"0");
+const now=new Date();
+let month=now.getFullYear()+"-"+pad(now.getMonth()+1),tab="list",edit=false,docRef=null,timer=null,armed=null;
+let S={items:[],salary:0,sal:{},ot:{},checks:{}};
+const shift=(k,n)=>{const[y,m]=k.split("-").map(Number),d=new Date(y,m-1+n,1);return d.getFullYear()+"-"+pad(d.getMonth()+1)};
+const ml=(k,s)=>{const[y,m]=k.split("-").map(Number);return new Date(y,m-1,1).toLocaleString("en",s?{month:"short"}:{month:"long",year:"numeric"})};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const itemsFor=m=>S.items.filter(i=>!i.month||i.month===m);
+const isChk=(m,id)=>!!(S.checks[m]&&S.checks[m][id]);
+function stats(m){
+  const its=itemsFor(m),base=S.sal[m]!=null?S.sal[m]:S.salary,ot=(S.ot&&S.ot[m])||0,sal=base+ot;
+  const planned=its.reduce((s,i)=>s+i.amt,0),paid=its.filter(i=>isChk(m,i.id)).reduce((s,i)=>s+i.amt,0);
+  return{its,sal,base,ot,planned,paid,remain:sal-paid,ifAll:sal-planned};
+}
+function monthsWithData(){
+  const set=new Set(Object.keys(S.sal));
+  Object.keys(S.checks).forEach(m=>{if(Object.keys(S.checks[m]).length)set.add(m)});
+  S.items.forEach(i=>{if(i.month)set.add(i.month)});
+  return[...set].sort();
+}
+
+/* ---------- storage ---------- */
+function save(){
+  S.rev=Date.now();clearTimeout(timer);
+  timer=setTimeout(async()=>{
+    timer=null;const data=JSON.parse(JSON.stringify(S));
+    if(docRef){try{await docRef.set(data);return}catch(e){}}
+    try{localStorage.setItem("st",JSON.stringify(data))}catch(e){}
+  },350);
+}
+async function init(){
+  try{const s=JSON.parse(localStorage.getItem("st")||"null");if(s)Object.assign(S,s)}catch(e){}
+  $("status").textContent="Saved in this browser";render();
+  try{
+    if(typeof claude==="undefined")return;
+    const[db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    const id=db&&user?await user.id():null;if(!id)return;
+    docRef=db.doc("data/users/"+id+"/app");
+    docRef.onSnapshot(s=>{
+      if(timer||s.metadata.hasPendingWrites)return;
+      if(s.exists&&(s.data().rev||0)>=(S.rev||0)){S=Object.assign({items:[],salary:0,sal:{},ot:{},checks:{}},s.data())}
+      $("status").textContent="Saved privately to your account";render();
+    },()=>{});
+  }catch(e){}
+}
+
+/* ---------- render ---------- */
+function render(){
+  $("ml").textContent=ml(month);
+  $("pgList").classList.toggle("hide",tab!=="list");$("pgHist").classList.toggle("hide",tab!=="hist");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));
+  const st=stats(month);
+  if(document.activeElement!==$("sal"))$("sal").value=st.base||"";
+  if(document.activeElement!==$("ot"))$("ot").value=st.ot||"";
+  $("tot").textContent=fmt(st.sal);
+  $("sPaid").textContent=fmt(st.paid);
+  const r=$("sRem");r.textContent=(st.remain<0?"−":"")+fmt(Math.abs(st.remain));r.className=st.remain<0?"bad":"ok";
+  const a=$("sAll");a.textContent=(st.ifAll<0?"−":"")+fmt(Math.abs(st.ifAll));a.className=st.ifAll<0?"bad":"";
+  $("prog").style.width=Math.min(100,st.planned?st.paid/st.planned*100:0)+"%";
+  const done=st.its.filter(i=>isChk(month,i.id)).length;
+  $("cnt").textContent=st.its.length?`Checklist · ${done}/${st.its.length} paid`:"Checklist";
+  $("editBtn").textContent=edit?"Done":"Edit";$("addBox").classList.toggle("hide",!edit);
+  if(!st.its.length)$("list").innerHTML='<div class="empty">No items yet. Tap Edit to add your first one.</div>';
+  else if(edit)$("list").innerHTML=st.its.map(i=>`<div class="ed"><input data-f="name" data-id="${i.id}" value="${esc(i.name)}"><input data-f="amt" data-id="${i.id}" type="number" inputmode="decimal" value="${i.amt}"><button data-del="${i.id}" aria-label="Delete">${armed===i.id?"Sure?":"✕"}</button></div>`).join("");
+  else $("list").innerHTML=st.its.map(i=>{const c=isChk(month,i.id);return `<label class="it ${c?"done":""}"><input type="checkbox" data-chk="${i.id}" ${c?"checked":""}><span class="n">${esc(i.name)}${i.month?"<small>This month only</small>":""}</span><span class="a">${fmt(i.amt)}</span></label>`}).join("");
+  if(tab==="hist")renderHist(st);
+}
+
+function renderHist(st){
+  // chart
+  const ks=[];for(let i=11;i>=0;i--)ks.push(shift(month,-i));
+  const D=ks.map(k=>({k,...stats(k)}));
+  const max=Math.max(1,...D.map(d=>Math.max(d.sal,d.paid)));
+  const W=360,H=190,B=22,T=8,cw=W/12,bw=cw*0.34,ph=H-B-T;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Paid versus salary">`;
+  s+=`<line x1="0" x2="${W}" y1="${T+ph}" y2="${T+ph}" stroke="var(--bd)"/>`;
+  D.forEach((d,i)=>{const x=i*cw+cw/2,hs=d.sal/max*ph,hp=d.paid/max*ph;
+    s+=`<rect x="${x-bw-1}" y="${T+ph-hs}" width="${bw}" height="${hs}" rx="2" fill="var(--ok)" opacity=".55"><title>${ml(d.k)} salary ${fmt(d.sal)}</title></rect>`;
+    s+=`<rect x="${x+1}" y="${T+ph-hp}" width="${bw}" height="${hp}" rx="2" fill="var(--acc)"><title>${ml(d.k)} paid ${fmt(d.paid)}</title></rect>`;
+    s+=`<text x="${x}" y="${H-7}" text-anchor="middle" style="font-size:9px${d.k===month?";font-weight:700":""}">${ml(d.k,1)[0]}</text>`});
+  $("chart").innerHTML=s+`</svg><div class="note" style="text-align:left;margin-top:4px"><span class="ok">■</span> Salary &nbsp; <span style="color:var(--acc)">■</span> Paid</div>`;
+  // this month by item
+  const paidIts=st.its.filter(i=>isChk(month,i.id)&&i.amt>0).sort((a,b)=>b.amt-a.amt);
+  $("bars").innerHTML=paidIts.length?paidIts.map(i=>`<div class="bar"><span>${esc(i.name)}</span><span class="t"><i style="width:${i.amt/st.paid*100}%"></i></span><span>${Math.round(i.amt/st.paid*100)}%</span></div>`).join(""):'<div class="empty">Tick items to see the split.</div>';
+  // history table
+  const ms=monthsWithData().reverse();
+  $("hist").innerHTML=ms.length?ms.map(k=>{const t=stats(k);return `<tr data-m="${k}" class="${k===month?"sel":""}"><td>${ml(k,1)} ${k.slice(2,4)}</td><td>${fmt(t.sal)}</td><td>${fmt(t.paid)}</td><td class="${t.remain<0?"bad":"ok"}">${t.remain<0?"−":""}${fmt(Math.abs(t.remain))}</td><td>${t.sal>0?Math.round(t.remain/t.sal*100)+"%":"–"}</td></tr>`}).join(""):'<tr><td colspan="5" class="empty">No history yet.</td></tr>';
+  // item history
+  const cnt={},tot={};
+  Object.keys(S.checks).forEach(m=>Object.keys(S.checks[m]).forEach(id=>{const it=S.items.find(x=>x.id===id);if(it){cnt[id]=(cnt[id]||0)+1;tot[id]=(tot[id]||0)+it.amt}}));
+  const ih=S.items.filter(i=>cnt[i.id]).sort((a,b)=>tot[b.id]-tot[a.id]);
+  $("itemHist").innerHTML=ih.length?ih.map(i=>`<tr style="cursor:default"><td>${esc(i.name)}</td><td>${cnt[i.id]}</td><td>${fmt(tot[i.id])}</td></tr>`).join(""):'<tr><td colspan="3" class="empty">Nothing paid yet.</td></tr>';
+  // insights
+  const act=ms.map(stats2).filter(t=>t.paid>0),ins=[];
+  function stats2(k){return stats(k)}
+  if(act.length){const ap=act.reduce((s,t)=>s+t.paid,0)/act.length,ar=act.reduce((s,t)=>s+t.remain,0)/act.length;
+    ins.push(`Average paid per month: <b>${fmt(ap)}</b> over ${act.length} month${act.length>1?"s":""}.`);
+    ins.push(`Average remaining after paid items: <b>${fmt(ar)}</b>.`);
+    const best=ms.map(k=>({k,...stats(k)})).filter(t=>t.paid>0).sort((a,b)=>b.remain-a.remain)[0];
+    if(act.length>1)ins.push(`Most left over: <b>${ml(best.k)}</b> (${fmt(best.remain)}).`)}
+  if(st.planned>st.paid)ins.push(`<b>${fmt(st.planned-st.paid)}</b> still unpaid this month.`);
+  $("ins").innerHTML=ins.length?ins.map(x=>"<li>"+x+"</li>").join(""):"<li>Tick some items to see insights.</li>";
+}
+
+/* ---------- events ---------- */
+$("prev").onclick=()=>{month=shift(month,-1);armed=null;render()};
+$("next").onclick=()=>{month=shift(month,1);armed=null;render()};
+document.querySelector(".nav").onclick=e=>{const t=e.target.dataset.t;if(t){tab=t;render();window.scrollTo(0,0)}};
+$("editBtn").onclick=()=>{edit=!edit;armed=null;render()};
+$("sal").onchange=e=>{const v=parseFloat(e.target.value);S.sal[month]=isNaN(v)?0:v;if(!S.salary&&v>0)S.salary=v;save();render()};
+$("ot").onchange=e=>{const v=parseFloat(e.target.value);S.ot=S.ot||{};S.ot[month]=isNaN(v)?0:v;save();render()};
+$("list").onchange=e=>{
+  const d=e.target.dataset;
+  if(d.chk){const c=S.checks[month]=S.checks[month]||{};e.target.checked?c[d.chk]=true:delete c[d.chk];save();render()}
+  else if(d.f){const it=S.items.find(x=>x.id===d.id);if(!it)return;if(d.f==="name")it.name=e.target.value.trim()||it.name;else it.amt=Math.max(0,parseFloat(e.target.value)||0);save();render()}
+};
+$("list").onclick=e=>{
+  const id=e.target.dataset.del;if(!id)return;
+  if(armed!==id){armed=id;render();return}
+  S.items=S.items.filter(i=>i.id!==id);Object.values(S.checks).forEach(c=>delete c[id]);armed=null;save();render();
+};
+$("aBtn").onclick=()=>{
+  const name=$("aName").value.trim(),amt=parseFloat($("aAmt").value);if(!name||isNaN(amt))return;
+  const it={id:"i"+Date.now().toString(36),name,amt};if($("aOnce").checked)it.month=month;
+  S.items.push(it);$("aName").value="";$("aAmt").value="";$("aOnce").checked=false;save();render();
+};
+$("hist").onclick=e=>{const tr=e.target.closest("tr");if(tr&&tr.dataset.m){month=tr.dataset.m;tab="list";render();window.scrollTo(0,0)}};
+init();
+</script>
+</body>
+</html>
