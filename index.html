@@ -79,6 +79,11 @@ svg text{fill:var(--mut);font-size:11px}
       </div>
       <div class="prog"><i id="prog" style="width:0"></i></div>
     </div>
+    <div class="card hide" id="loanCard">
+      <div class="hd"><h2>Study loan</h2><span class="note" id="loanSub"></span></div>
+      <div class="stats"><div><small>Balance</small><b id="lBal">0</b></div><div><small>Paid so far</small><b id="lPaid">0</b></div><div><small>Months left</small><b id="lLeft">–</b></div></div>
+      <div class="prog"><i id="loanProg" style="width:0"></i></div>
+    </div>
     <div class="card">
       <div class="hd"><h2 id="cnt">Checklist</h2><button id="editBtn">Edit</button></div>
       <div id="list"></div>
@@ -112,12 +117,19 @@ let S={items:[],salary:0,sal:{},ot:{},checks:{}};
 const shift=(k,n)=>{const[y,m]=k.split("-").map(Number),d=new Date(y,m-1+n,1);return d.getFullYear()+"-"+pad(d.getMonth()+1)};
 const ml=(k,s)=>{const[y,m]=k.split("-").map(Number);return new Date(y,m-1,1).toLocaleString("en",s?{month:"short"}:{month:"long",year:"numeric"})};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const itemsFor=m=>S.items.filter(i=>!i.month||i.month===m);
+const itemsFor=m=>S.items.filter(i=>(!i.month||i.month===m)&&(!i.from||m>=i.from));
 const isChk=(m,id)=>!!(S.checks[m]&&S.checks[m][id]);
 function stats(m){
   const its=itemsFor(m),base=S.sal[m]!=null?S.sal[m]:S.salary,ot=(S.ot&&S.ot[m])||0,sal=base+ot;
   const planned=its.reduce((s,i)=>s+i.amt,0),paid=its.filter(i=>isChk(m,i.id)).reduce((s,i)=>s+i.amt,0);
   return{its,sal,base,ot,planned,paid,remain:sal-paid,ifAll:sal-planned};
+}
+function loanInfo(){
+  if(!S.loan)return null;
+  const ls=S.items.filter(i=>i.loan);let paid=0;
+  Object.keys(S.checks).forEach(m=>{if(m>=(S.loan.since||"0"))ls.forEach(i=>{if(S.checks[m][i.id])paid+=i.amt})});
+  const per=ls.length?ls[0].amt:0,bal=Math.max(0,S.loan.balance-paid);
+  return{bal,paid,start:S.loan.balance,left:per>0&&bal>0?Math.ceil(bal/per):0,per};
 }
 function monthsWithData(){
   const set=new Set(Object.keys(S.sal));
@@ -164,12 +176,14 @@ function render(){
   const r=$("sRem");r.textContent=(st.remain<0?"−":"")+fmt(Math.abs(st.remain));r.className=st.remain<0?"bad":"ok";
   const a=$("sAll");a.textContent=(st.ifAll<0?"−":"")+fmt(Math.abs(st.ifAll));a.className=st.ifAll<0?"bad":"";
   $("prog").style.width=Math.min(100,st.planned?st.paid/st.planned*100:0)+"%";
+  const L=loanInfo();$("loanCard").classList.toggle("hide",!L);
+  if(L){$("lBal").textContent=fmt(L.bal);$("lPaid").textContent=fmt(L.paid);$("lLeft").textContent=L.left||"–";$("loanProg").style.width=Math.min(100,L.start?L.paid/L.start*100:0)+"%";$("loanSub").textContent=L.left?"≈ "+(L.left/12).toFixed(1)+" years at this rate":"Paid off"}
   const done=st.its.filter(i=>isChk(month,i.id)).length;
   $("cnt").textContent=st.its.length?`Checklist · ${done}/${st.its.length} paid`:"Checklist";
   $("editBtn").textContent=edit?"Done":"Edit";$("addBox").classList.toggle("hide",!edit);
   if(!st.its.length)$("list").innerHTML='<div class="empty">No items yet. Tap Edit to add your first one.</div>';
   else if(edit)$("list").innerHTML=st.its.map(i=>`<div class="ed"><input data-f="name" data-id="${i.id}" value="${esc(i.name)}"><input data-f="amt" data-id="${i.id}" type="number" inputmode="decimal" value="${i.amt}"><button data-del="${i.id}" aria-label="Delete">${armed===i.id?"Sure?":"✕"}</button></div>`).join("");
-  else $("list").innerHTML=st.its.map(i=>{const c=isChk(month,i.id);return `<label class="it ${c?"done":""}"><input type="checkbox" data-chk="${i.id}" ${c?"checked":""}><span class="n">${esc(i.name)}${i.month?"<small>This month only</small>":""}</span><span class="a">${fmt(i.amt)}</span></label>`}).join("");
+  else $("list").innerHTML=st.its.map(i=>{const c=isChk(month,i.id);return `<label class="it ${c?"done":""}"><input type="checkbox" data-chk="${i.id}" ${c?"checked":""}><span class="n">${esc(i.name)}${i.month?"<small>This month only</small>":i.loan?"<small>Reduces study loan balance</small>":""}</span><span class="a">${fmt(i.amt)}</span></label>`}).join("");
   if(tab==="hist")renderHist(st);
 }
 
